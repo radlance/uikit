@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.library)
@@ -52,8 +54,25 @@ publishing {
             }
         }
     }
-}
 
+    val properties = Properties()
+    properties.load(project.rootProject.file("local.properties").inputStream())
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/radlance/uikit")
+            credentials {
+                username = properties.getProperty("grp.user")
+                password = properties.getProperty("grp.key")
+            }
+        }
+    }
+
+    publications {
+        register<MavenPublication>("gpr")
+    }
+}
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)
