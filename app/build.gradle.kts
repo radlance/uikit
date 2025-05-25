@@ -1,3 +1,4 @@
+import java.net.URL
 import java.util.Properties
 
 plugins {
@@ -45,9 +46,9 @@ android {
 publishing {
     publications {
         create<MavenPublication>("release") {
-            groupId = "com.radlance.uistate"
+            groupId = "com.radlance.uikit"
             artifactId = "core"
-            version = "1.0.1"
+            version = "1.0.0"
 
             afterEvaluate {
                 from(components["release"])
@@ -75,6 +76,8 @@ publishing {
 }
 
 dependencies {
+    implementation(files("${rootDir}/libs/downloaded-library.aar"))
+    
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -92,3 +95,36 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+tasks.register("downloadAar") {
+    doLast {
+        val aarUrl =
+            "https://github.com/radlance/uikit/releases/download/1.0.2/app-release.aar"
+        val targetDir = File("${project.rootDir}/libs")
+        val aarFile = File(targetDir, "downloaded-library.aar")
+
+        if (!aarFile.exists()) {
+            targetDir.mkdirs()
+            URL(aarUrl).openStream().use { input ->
+                aarFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+        }
+    }
+}
+
+tasks.register("deleteAar") {
+    doLast {
+        val targetDir = File("${project.rootDir}/libs")
+        val aarFile = File(targetDir, "downloaded-library.aar")
+
+        if (aarFile.exists()) {
+            aarFile.delete()
+            println("AAR file deleted successfully")
+        } else {
+            println("AAR file not found")
+        }
+    }
+}
+
