@@ -128,3 +128,6 @@ tasks.register("deleteAar") {
     }
 }
 
+tasks.named("preBuild") {
+    dependsOn("downloadAar")
+}
